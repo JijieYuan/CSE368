@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Phishing Email Detector (Demo)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Phishing Email Detector (Demo)</h1>
+
+        <form method="POST">
+            <label for="email_text">Paste email content here:</label><br>
+            <textarea id="email_text" name="email_text" rows="10" cols="80"
+                      placeholder="Paste email text here..."></textarea><br>
+            <button type="submit">Analyze</button>
+        </form>
+
+        {% if result %}
+            <div class="result">
+                <h2>Prediction (Demo)</h2>
+                <p><strong>Label:</strong> {{ result.label }}</p>
+                <p><strong>Probability:</strong> {{ (result.probability * 100) | round(1) }}%</p>
+
+                <h3>Original Email Text</h3>
+                <pre>{{ result.email_text }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
