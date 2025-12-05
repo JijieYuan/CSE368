@@ -2,30 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Phishing Email Detector (Demo)</title>
+    <title>AI Phishing Email Detector</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>AI Phishing Email Detector (Demo)</h1>
+<div class="page">
+    <header class="header">
+        <h1>AI Phishing Email Detector</h1>
+        <p class="subtitle">
+            Paste an email below and let our Naive Bayes model tell you whether it looks
+            <span class="phishing-color">phishing</span> or <span class="legit-color">legitimate</span>.
+        </p>
+    </header>
 
-        <form method="POST">
-            <label for="email_text">Paste email content here:</label><br>
-            <textarea id="email_text" name="email_text" rows="10" cols="80"
-                      placeholder="Paste email text here..."></textarea><br>
-            <button type="submit">Analyze</button>
-        </form>
+    <main class="main">
+        <section class="card input-card">
+            <h2 class="card-title">1. Paste Email Content</h2>
+            <form method="POST" class="analyze-form">
+                <label for="email_text" class="field-label">Email text</label>
+                <textarea id="email_text"
+                          name="email_text"
+                          rows="10"
+                          placeholder="Paste email text here...">{{ request.form.email_text or '' }}</textarea>
 
-        {% if result %}
-            <div class="result">
-                <h2>Prediction (Demo)</h2>
-                <p><strong>Label:</strong> {{ result.label }}</p>
-                <p><strong>Probability:</strong> {{ (result.probability * 100) | round(1) }}%</p>
+                <div class="form-footer">
+                    <button type="submit" class="btn-primary">Analyze</button>
+                    <span class="hint">No data is saved — this is a local demo.</span>
+                </div>
+            </form>
+        </section>
 
-                <h3>Original Email Text</h3>
-                <pre>{{ result.email_text }}</pre>
-            </div>
-        {% endif %}
-    </div>
+        <section class="card result-card">
+            <h2 class="card-title">2. Model Prediction</h2>
+
+            {% if result %}
+                <div class="prediction-header">
+                    {% if result.label == 'phishing' %}
+                        <span class="badge badge-phishing">⚠ Phishing</span>
+                    {% else %}
+                        <span class="badge badge-legit">✓ Legitimate</span>
+                    {% endif %}
+
+                    <span class="probability">
+                        Confidence:
+                        <strong>{{ (result.probability * 100) | round(1) }}%</strong>
+                    </span>
+                </div>
+
+                {% if result.top_tokens %}
+                    <div class="feature-box">
+                        <h3>Top Important Words</h3>
+                        <p class="feature-note">
+                            These are the words with the highest TF-IDF scores in this email.
+                        </p>
+                        <div class="token-list">
+                            {% for item in result.top_tokens %}
+                                <span class="token-pill">
+                                    {{ item.token }}
+                                    <span class="token-score">{{ item.score | round(3) }}</span>
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="email-box">
+                    <h3>Email Preview</h3>
+                    <pre>{{ result.email_text }}</pre>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>Prediction result will appear here after you click <strong>Analyze</strong>.</p>
+                    <p class="empty-tip">Try pasting a suspicious email that mentions things like “account locked”, “click here”, or “verify your identity”.</p>
+                </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer class="footer">
+        <span>CSE368 Project &middot; Naive Bayes + TF-IDF Demo</span>
+    </footer>
+</div>
 </body>
 </html>
